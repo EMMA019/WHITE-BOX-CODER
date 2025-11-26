@@ -1,4 +1,6 @@
 White-Box AI Coder 📦✨
+<img width="1627" height="842" alt="image" src="https://github.com/user-attachments/assets/8dd35fca-8449-4077-9734-5582c855c1b9" />
+<img width="1869" height="953" alt="image" src="https://github.com/user-attachments/assets/f24e31f7-1c36-4ab0-985c-1535e5fbd5bb" />
 
 White-Box AI Coder is a transparent, retro-styled code generation tool designed to visualize the AI's thought process. Unlike traditional "black box" code generators, this tool explicitly displays the three-stage workflow: Generate, Review, and Fix.
 
