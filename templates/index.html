@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>White-Box AI Coder [Retro]</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Highlight.js (Sepia theme for retro look) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/a11y-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #fdf6e3;       /* Cream */
+            --panel-bg: #eee8d5;       /* Beige */
+            --border-color: #8b4513;   /* SaddleBrown */
+            --text-main: #4a3b32;      /* Dark Coffee */
+            --accent-color: #d2691e;   /* Chocolate */
+            --highlight: #b58900;      /* Gold */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace; /* Typewriter style */
+            background-image: radial-gradient(#d2b48c 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
+
+        /* Retro Borders */
+        .retro-border {
+            border: 2px solid var(--border-color);
+            box-shadow: 4px 4px 0px var(--border-color);
+            border-radius: 2px;
+        }
+        
+        .retro-border-inset {
+            border: 2px solid var(--border-color);
+            box-shadow: inset 2px 2px 5px rgba(139, 69, 19, 0.2);
+            background-color: #fffbf0;
+        }
+
+        /* Retro Button */
+        .btn-retro {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: 2px solid var(--border-color);
+            box-shadow: 2px 2px 0px var(--border-color);
+            transition: all 0.1s;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .btn-retro:hover:not(:disabled) {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px var(--border-color);
+            background-color: #a0522d;
+        }
+        .btn-retro:active:not(:disabled) {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px var(--border-color);
+        }
+        .btn-retro:disabled {
+            background-color: #a0a0a0;
+            border-color: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Tab Style */
+        .tab-btn {
+            border: 2px solid var(--border-color);
+            border-bottom: none;
+            background-color: #dccfb8;
+            color: var(--text-main);
+            margin-right: 4px;
+            border-radius: 4px 4px 0 0;
+            padding: 5px 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background-color: var(--panel-bg);
+            color: var(--accent-color);
+            height: calc(100% + 2px); /* Cover bottom border */
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 3px solid rgba(139, 69, 19, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid var(--accent-color);
+            width: 20px; height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Syntax Highlighting Tweaks */
+        pre code.hljs {
+            background-color: #fffbf0;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+<!-- Flaskの干渉を防ぐため、Vue.jsの領域を raw タグで囲みます -->
+{% raw %}
+<div id="app" class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <header class="mb-8 text-center border-b-4 border-double border-[#8b4513] pb-6">
+        <h1 class="text-3xl md:text-5xl font-bold text-[#8b4513] mb-2 tracking-tighter">
+            <span class="text-4xl md:text-6xl">W</span>HITE-<span class="text-4xl md:text-6xl">B</span>OX <span class="text-[#d2691e]">CODER</span>
+        </h1>
+        <p class="text-[#5c4033] text-sm uppercase tracking-widest">--- Transparent AI Generation System ---</p>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- LEFT PANEL: INPUT -->
+        <div class="bg-[#eee8d5] p-6 retro-border relative">
+            <!-- Decorative Screws -->
+            <div class="absolute top-2 left-2 w-2 h-2 rounded-full bg-[#b8a080] border border-[#8b4513]"></div>
+            <div class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#b8a080] border border-[#8b4513]"></div>
+            <div class="absolute bottom-2 left-2 w-2 h-2 rounded-full bg-[#b8a080] border border-[#8b4513]"></div>
+            <div class="absolute bottom-2 right-2 w-2 h-2 rounded-full bg-[#b8a080] border border-[#8b4513]"></div>
+
+            <h2 class="text-xl font-bold mb-4 border-b-2 border-[#8b4513] inline-block pb-1">INPUT DATA</h2>
+
+            <form @submit.prevent="handleSubmit" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Task Description</label>
+                    <textarea v-model="prompt" rows="6" maxlength="2000"
+                        class="w-full p-3 retro-border-inset text-sm focus:outline-none transition"
+                        placeholder="Type your request here..."
+                        required :disabled="isLoading"></textarea>
+                    <div class="text-right text-xs mt-1 opacity-70">{{ prompt.length }}/2000 CHARS</div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Target Language</label>
+                    <select v-model="language" 
+                        class="w-full p-2 retro-border-inset text-sm focus:outline-none bg-white cursor-pointer">
+                        <option value="python">Python</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="html">HTML/CSS/JS</option>
+                        <option value="typescript">TypeScript</option>
+                        <option value="sql">SQL</option>
+                    </select>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" :disabled="isLoading"
+                        class="w-full py-3 btn-retro flex justify-center items-center gap-3">
+                        <span v-if="isLoading" class="spinner"></span>
+                        <span>{{ isLoading ? 'PROCESSING...' : 'EXECUTE GENERATION' }}</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Error Display -->
+            <div v-if="error" class="mt-6 p-3 border-2 border-red-800 bg-red-100 text-red-900 text-xs font-bold">
+                [ERROR] {{ error }}
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: OUTPUT -->
+        <div class="flex flex-col h-[600px] relative">
+            
+            <!-- Tabs -->
+            <div class="flex items-end px-2 z-10">
+                <button @click="activeTab = 'code'" :class="['tab-btn', activeTab === 'code' ? 'active' : '']">
+                    SOURCE CODE
+                </button>
+                <button @click="activeTab = 'preview'" :class="['tab-btn', activeTab === 'preview' ? 'active' : '']">
+                    LIVE PREVIEW
+                </button>
+            </div>
+
+            <!-- Content Box -->
+            <div class="flex-1 bg-[#eee8d5] retro-border p-1 flex flex-col overflow-hidden relative z-0">
+                
+                <!-- Loading Overlay -->
+                <div v-if="isLoading" class="absolute inset-0 bg-[#eee8d5] z-50 flex flex-col items-center justify-center space-y-4">
+                    <div class="w-12 h-12 border-4 border-[#8b4513] border-t-transparent rounded-full animate-spin"></div>
+                    <div class="text-xs font-bold animate-pulse uppercase tracking-widest text-[#8b4513]">
+                        AI IS THINKING...
+                    </div>
+                </div>
+
+                <!-- TAB: SOURCE CODE -->
+                <div v-show="activeTab === 'code'" class="flex-1 flex flex-col h-full">
+                    <div class="bg-[#dccfb8] p-2 border-b border-[#8b4513] flex justify-between items-center text-xs">
+                        <span class="font-bold text-[#4a3b32]">> OUTPUT.TXT</span>
+                        <button @click="copyCode" class="hover:text-[#d2691e] font-bold transition-colors">
+                            {{ copied ? '[ COPIED ]' : '[ COPY ]' }}
+                        </button>
+                    </div>
+                    
+                    <div class="flex-1 overflow-auto retro-border-inset m-2 bg-[#fffbf0]">
+                        <pre class="m-0"><code class="hljs" ref="codeBlock">{{ result.finalCode || '// Waiting for input...' }}</code></pre>
+                    </div>
+
+                    <!-- Review Notes (Collapsible) - Expanded for White-Box View -->
+                    <div class="px-2 pb-2">
+                        <details class="bg-[#e0d6c2] border border-[#8b4513] rounded-sm group">
+                            <summary class="px-3 py-2 cursor-pointer text-xs font-bold hover:bg-[#d2c4aa] select-none flex justify-between items-center">
+                                <span>[+] OPEN WHITE-BOX LOG (THOUGHT PROCESS)</span>
+                                <span class="text-[10px] opacity-50 group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <div class="p-3 border-t border-[#8b4513] bg-[#fffbf0] text-xs font-mono space-y-4 max-h-60 overflow-y-auto">
+                                <div>
+                                    <h4 class="font-bold text-[#d2691e] mb-1 border-b border-[#dccfb8]">1. AI REVIEW & ANALYSIS</h4>
+                                    <div class="whitespace-pre-wrap text-[#4a3b32]">{{ result.reviewNotes || 'Waiting for analysis...' }}</div>
+                                </div>
+                                <div v-if="result.initialCode">
+                                    <h4 class="font-bold text-[#d2691e] mb-1 border-b border-[#dccfb8]">2. INITIAL DRAFT (BEFORE FIX)</h4>
+                                    <pre class="bg-[#eee8d5] p-2 rounded overflow-x-auto text-[#5c4033]">{{ result.initialCode }}</pre>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- TAB: LIVE PREVIEW -->
+                <div v-show="activeTab === 'preview'" class="flex-1 flex flex-col h-full bg-white relative">
+                    <div class="bg-[#333] text-white p-1 text-[10px] font-mono flex justify-between items-center">
+                        <span>BROWSER PREVIEW</span>
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                    </div>
+                    <div v-if="!result.finalCode" class="flex-1 flex items-center justify-center text-[#8b4513] opacity-50 text-sm">
+                        [ NO CONTENT TO DISPLAY ]
+                    </div>
+                    <iframe v-else :srcdoc="result.finalCode" class="flex-1 w-full h-full border-none" sandbox="allow-scripts"></iframe>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+{% endraw %}
+
+<script type="module">
+    const { createApp, ref, reactive, nextTick, watch } = Vue;
+
+    createApp({
+        setup() {
+            const prompt = ref('');
+            const language = ref('python');
+            const isLoading = ref(false);
+            const error = ref(null);
+            const copied = ref(false);
+            const codeBlock = ref(null);
+            const activeTab = ref('code'); // 'code' or 'preview'
+            
+            const result = reactive({
+                initialCode: '',
+                reviewNotes: '',
+                finalCode: ''
+            });
+
+            // Switch to preview automatically if language is HTML/JS
+            watch(() => result.finalCode, (newVal) => {
+                if (newVal && (language.value === 'html' || language.value === 'javascript')) {
+                    // activeTab.value = 'preview'; // Optional auto-switch
+                }
+            });
+
+            const handleSubmit = async () => {
+                if (!prompt.value) return;
+                
+                isLoading.value = true;
+                error.value = null;
+                result.finalCode = ''; 
+                result.reviewNotes = '';
+                result.initialCode = '';
+                
+                // If requesting HTML/JS, hint the user to check preview
+                if (['html', 'javascript'].includes(language.value)) {
+                    activeTab.value = 'preview';
+                } else {
+                    activeTab.value = 'code';
+                }
+
+                try {
+                    const response = await fetch('/api/process_code', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ 
+                            prompt: prompt.value,
+                            language: language.value
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error || `Server Error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    result.initialCode = data.initialCode;
+                    result.reviewNotes = data.reviewNotes;
+                    result.finalCode = data.finalCode;
+                    
+                    nextTick(() => {
+                        if (window.hljs && codeBlock.value) {
+                            window.hljs.highlightElement(codeBlock.value);
+                        }
+                    });
+
+                } catch (e) {
+                    error.value = e.message;
+                    activeTab.value = 'code'; // Switch back to code on error
+                } finally {
+                    isLoading.value = false;
+                }
+            };
+
+            const copyCode = () => {
+                if (!result.finalCode) return;
+                navigator.clipboard.writeText(result.finalCode);
+                copied.value = true;
+                setTimeout(() => copied.value = false, 2000);
+            };
+
+            return {
+                prompt, language, isLoading, error, result, 
+                handleSubmit, copyCode, copied, codeBlock, activeTab
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
