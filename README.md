@@ -109,7 +109,7 @@ Installation
 Clone the repository
 
 git clone https://github.com/EMMA019/WHITE-BOX-CODER.git 
-cd white-box-ai-coder
+cd WHITE-BOX-CODER
 
 Install dependencies
 
