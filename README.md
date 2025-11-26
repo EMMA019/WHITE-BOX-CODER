@@ -108,9 +108,7 @@ Installation
 
 Clone the repository
 
-git clone [https://github.com/yourusername/white-box-ai-coder.git](https://github.com/yourusername/white-box-ai-coder.git)
-cd white-box-ai-coder
-
+git clone [https://github.com/EMMA019/WHITE-BOX-CODER.git]cd white-box-ai-coder
 
 Install dependencies
 
